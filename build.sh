@@ -5,8 +5,6 @@ if [ "$DEBUG" ]; then
   set -x
 fi
 
-SYSTEMD_REPO="https://salsa.debian.org/systemd-team/systemd"
-
 print_help() {
   echo "Usage: ./build.sh release_name"
   echo "release_name should be either 'bookworm' or 'unstable'"
@@ -24,7 +22,7 @@ patch_path="${base_path}/systemd_${release_name}.patch"
 if [ $release_name = "bookworm" ]; then
   branch_name="debian/bookworm"
 elif [ $release_name = "unstable" ]; then
-  branch_name="master"
+  branch_name="debian/master"
 else
   print_help
   exit 1
