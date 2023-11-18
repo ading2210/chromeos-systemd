@@ -6,13 +6,19 @@ if [ "$DEBUG" ]; then
 fi
 
 print_help() {
-  echo "Usage: ./build.sh release_name"
+  echo "Usage: ./build.sh release_name [arch]"
   echo "release_name should be either 'bookworm' or 'unstable'"
 }
 
 if [ -z "$1" ]; then
   print_help
   exit 1
+fi
+
+if [ "$2" ]; then
+  arch="$2"
+else
+  arch="amd64"
 fi
 
 release_name="$1"
@@ -38,7 +44,10 @@ git clone "https://salsa.debian.org/systemd-team/systemd" --depth=1 --branch $br
 cd systemd
 git apply "${patch_path}"
 
+echo "installing deps"
+sudo mk-build-deps -i -r -a $arch --host-arch $arch
+
 echo "building debian packages"
-dpkg-buildpackage -b -rfakeroot -us -uc
+dpkg-buildpackage -b -rfakeroot -us -uc -a$arch
 
 echo "build complete"

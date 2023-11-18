@@ -4,7 +4,11 @@ This repository contains a few patches to systemd which allow it to run on Chrom
 
 There is also a script which will automatically download systemd, apply the patches, and build the binary packages for Debian.
 
-# Copyright:
+To build systemd with these patches, run `./build.sh`.
+
+To build a Debian repository containing the modified systemd packages, run `./build_repo.sh`.
+
+## Copyright:
 Credit for fixing the original bug in systemd goes to [@r58playz](https://github.com/r58Playz/).
 
 This repository is licensed under the [GNU LGPL v2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt).

@@ -16,18 +16,20 @@ rm -rf $repo_dir || true
 mkdir -p $repo_dir
 
 for release_name in $supported_releases; do
-  cd $base_path
+  for arch in "amd64 i386"; do
+    cd $base_path
 
-  . ./build.sh $release_name
-  pool_dir="$repo_dir/pool/main/$release_name"
-  dists_dir="$repo_dir/dists/$release_name/main/binary-amd64"
-  
-  mkdir -p $dists_dir
-  mkdir -p $pool_dir
+    . ./build.sh $release_name $arch
+    pool_dir="$repo_dir/pool/main/$release_name"
+    dists_dir="$repo_dir/dists/$release_name/main/binary-$arch"
+    
+    mkdir -p $dists_dir
+    mkdir -p $pool_dir
 
-  cp $base_path/build/*.deb $pool_dir
-  cd $repo_dir
-  dpkg-scanpackages --arch amd64 pool/main/$release_name > $dists_dir/Packages
-  cat $dists_dir/Packages | gzip -9 > $dists_dir/Packages.gz
+    cp $base_path/build/*.deb $pool_dir
+    cd $repo_dir
+    dpkg-scanpackages --arch $arch pool/main/$release_name > $dists_dir/Packages
+    cat $dists_dir/Packages | gzip -9 > $dists_dir/Packages.gz
+  done
 done
 
