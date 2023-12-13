@@ -15,6 +15,11 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
+if [ "$EUID" -ne 0 ]; then 
+  echo "This script must be run as root."
+  exit 1
+fi
+
 if [ "$2" ]; then
   arch="$2"
 else
@@ -25,16 +30,8 @@ release_name="$1"
 base_path="$(realpath $(dirname $0))"
 patch_path="${base_path}/systemd_${release_name}.patch"
 tmp_dir="/tmp/chromeos-systemd"
-mkdir -p $tmp_dir
-
-if [ $release_name = "bookworm" ]; then
-  branch_name="debian/bookworm"
-elif [ $release_name = "unstable" ]; then
-  branch_name="debian/master"
-else
-  print_help
-  exit 1
-fi
+qemu_dir="$base_path/qemu"
+disk_img="$qemu_dir/$release_name-$arch.img"
 
 echo "creating build directory"
 build_dir="$base_path/build"
@@ -43,6 +40,7 @@ mkdir -p $build_dir
 cd $build_dir
 
 echo "setting up apt config"
+mkdir -p $tmp_dir
 cat > $tmp_dir/sources.list <<EOF
 deb-src http://deb.debian.org/debian $release_name main
 EOF
@@ -69,12 +67,13 @@ echo "applying patches"
 cd $source_dir
 quilt import $patch_path
 quilt push
-exit 1
 
-echo "installing deps"
-sudo mk-build-deps -i -r -a $arch --host-arch $arch
+echo "setting up disk image"
+mkdir -p $qemu_dir
+if [ ! -f "$disk_img" ]; then
+  sbuild-qemu-create --arch=$arch $release_name https://deb.debian.org/debian -o $disk_img
+fi
 
-echo "building debian packages"
-dpkg-buildpackage -b -rfakeroot -us -uc -a$arch
-
-echo "build complete"
+echo "building package"
+build_log="$base_path/build_$release_name_$arch.log"
+sbuild-qemu --image=$disk_img --ram=4096 --cpus=$(nproc --all) --arch=$arch --no-run-piuparts --no-run-lintian

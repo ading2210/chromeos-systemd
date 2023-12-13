@@ -1,3 +1,4 @@
 /build
 /repo
-/build_old
+/qemu
+*.log
