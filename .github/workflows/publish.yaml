@@ -11,14 +11,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: debug with ssh
-        uses: mxschmitt/action-tmate@v3
+      - name: Install deps
+        run: | #upgrade the actions container to 24.04 because 22.04 doesn't have some of the deps
+          sudo sed -i 's/jammy/noble/' /etc/apt/sources.list
+          sudo apt-get update
+          sudo apt-get install -y sbuild-qemu quilt build-essential fakeroot devscripts dh-make dh-nss dpkg-dev dh-package-notes
 
       - name: Build
-        run: | #ubuntu lts doesn't have dh-nss
-          wget "http://mirrors.kernel.org/ubuntu/pool/universe/d/dh-nss/dh-nss_1.7_all.deb"
-          sudo apt-get install -y ./*.deb 
-          sudo apt-get install -y sbuild-qemu quilt dh-make dpkg-dev
+        run:
           sudo ./build_repo.sh
           mv repo/ website/debian/
 
