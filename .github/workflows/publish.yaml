@@ -11,10 +11,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: debug with ssh
+        uses: mxschmitt/action-tmate@v3
+
       - name: Build
         run: | #ubuntu lts doesn't have dh-nss
           wget "http://mirrors.kernel.org/ubuntu/pool/universe/d/dh-nss/dh-nss_1.7_all.deb"
-          wget "http://mirrors.kernel.org/ubuntu/pool/main/d/debhelper/libdebhelper-perl_13.11.4ubuntu3_all.deb"
           sudo apt-get install -y ./*.deb 
           sudo apt-get install -y sbuild-qemu quilt dh-make dpkg-dev
           sudo ./build_repo.sh
