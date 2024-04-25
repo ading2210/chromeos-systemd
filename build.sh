@@ -42,7 +42,7 @@ cd $build_dir
 echo "setting up apt config"
 mkdir -p $tmp_dir
 cat > $tmp_dir/sources.list <<EOF
-deb-src http://deb.debian.org/debian $release_name main
+deb-src [trusted=yes] http://deb.debian.org/debian $release_name main
 EOF
 cat > $tmp_dir/apt.conf <<EOF
 Dir::State "$tmp_dir/apt/lib/apt";
